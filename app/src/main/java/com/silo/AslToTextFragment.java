@@ -3,6 +3,7 @@ package com.silo;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
@@ -20,7 +21,10 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ImageAnalysis;
+import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
+import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.video.FileOutputOptions;
 import androidx.camera.video.Quality;
 import androidx.camera.video.QualitySelector;
@@ -28,7 +32,6 @@ import androidx.camera.video.Recorder;
 import androidx.camera.video.Recording;
 import androidx.camera.video.VideoCapture;
 import androidx.camera.video.VideoRecordEvent;
-import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -40,8 +43,10 @@ import com.silo.translation.LandmarkExtractor;
 
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
@@ -74,13 +79,13 @@ public class AslToTextFragment extends Fragment {
                                 Toast.LENGTH_SHORT).show();
                     });
 
-    @Nullable @Override
+    @Nullable
+    @Override
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container,
                              Bundle savedInstanceState) {
         b = FragmentAslToTextBinding.inflate(inflater, container, false);
 
-        // Make edge‐to‐edge full‐screen
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             requireActivity().getWindow().setDecorFitsSystemWindows(false);
             requireActivity().getWindow().getInsetsController()
@@ -102,7 +107,6 @@ public class AslToTextFragment extends Fragment {
     }
 
     private void bindCameraAndPreview() {
-        // Hide the launch icon, show live preview container
         b.recordPreviewContainer.setVisibility(View.GONE);
         b.fullCameraContainer.setVisibility(View.VISIBLE);
         b.videoView.setVisibility(View.GONE);
@@ -114,20 +118,43 @@ public class AslToTextFragment extends Fragment {
                 ProcessCameraProvider provider = future.get();
                 provider.unbindAll();
 
-                // 1) Preview
                 Preview preview = new Preview.Builder().build();
                 preview.setSurfaceProvider(b.previewView.getSurfaceProvider());
 
-                // 2) VideoCapture
                 Recorder recorder = new Recorder.Builder()
                         .setQualitySelector(QualitySelector.from(Quality.HD))
                         .build();
                 videoCapture = VideoCapture.withOutput(recorder);
 
+                ImageAnalysis analysis = new ImageAnalysis.Builder()
+                        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                        .build();
+
+                analysis.setAnalyzer(ContextCompat.getMainExecutor(requireContext()), image -> {
+                    Bitmap frame = imageProxyToBitmap(image);
+                    if (frame != null) {
+                        JSONObject json = extractor.detectSync(frame);
+                        boolean handsVisible = json.optJSONArray("hands") != null
+                                && json.optJSONArray("hands").length() > 0;
+                        boolean facesVisible = json.optJSONArray("faces") != null
+                                && json.optJSONArray("faces").length() > 0;
+
+                        requireActivity().runOnUiThread(() -> {
+                            if (!handsVisible || !facesVisible) {
+                                b.tvAslToText.setText("Make sure your hands and face are visible in the camera.");
+                            } else {
+                                b.tvAslToText.setText(""); // Clear message
+                            }
+                        });
+                    }
+                    image.close();
+                });
+
                 provider.bindToLifecycle(this,
                         lensFacing,
                         preview,
-                        videoCapture);
+                        videoCapture,
+                        analysis);
 
                 setupControls();
 
@@ -138,18 +165,15 @@ public class AslToTextFragment extends Fragment {
     }
 
     private void setupControls() {
-        // Record button: large red circle (your drawable)
         b.btnStart.setBackground(
                 getResources().getDrawable(R.drawable.record_circle, null));
         b.btnStart.setImageDrawable(null);
 
-        // Toggle start/stop
         b.btnStart.setOnClickListener(v -> {
             if (activeRecording == null) startRecording();
             else stopRecording();
         });
 
-        // Flip camera
         b.btnSwitchCamera.setOnClickListener(v -> {
             lensFacing = (lensFacing == CameraSelector.DEFAULT_FRONT_CAMERA)
                     ? CameraSelector.DEFAULT_BACK_CAMERA
@@ -166,11 +190,11 @@ public class AslToTextFragment extends Fragment {
         FileOutputOptions opts =
                 new FileOutputOptions.Builder(outFile).build();
 
-        if (ActivityCompat.checkSelfPermission(requireContext(),
-                Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-            // Audio denied: record video-only
-        }
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
 
+
+            return;
+        }
         activeRecording = videoCapture.getOutput()
                 .prepareRecording(requireContext(), opts)
                 .withAudioEnabled()
@@ -181,15 +205,15 @@ public class AslToTextFragment extends Fragment {
                     }
                 });
 
-        // Switch to “stop” square UI
         b.btnStart.setBackground(
                 getResources().getDrawable(R.drawable.stop_square, null));
         b.btnStart.setImageDrawable(null);
 
-        // Auto‐stop at 60s
         timer = new CountDownTimer(60_000, 1_000) {
-            @Override public void onTick(long millis) {}
-            @Override public void onFinish() { stopRecording(); }
+            @Override
+            public void onTick(long millisUntilFinished) {}
+            @Override
+            public void onFinish() { stopRecording(); }
         }.start();
     }
 
@@ -199,7 +223,6 @@ public class AslToTextFragment extends Fragment {
     }
 
     private void onRecordingFinished() {
-        // Show a centered spinner
         spinner = new ProgressBar(requireContext());
         ViewGroup root = b.fullCameraContainer;
         root.addView(spinner);
@@ -217,24 +240,20 @@ public class AslToTextFragment extends Fragment {
                                 retr.extractMetadata(
                                         MediaMetadataRetriever.METADATA_KEY_DURATION)));
 
-                // Extract every 100ms
                 for (long t = 0; t < durationMs; t += 100) {
                     Bitmap frame = retr.getFrameAtTime(
                             t * 1000,
                             MediaMetadataRetriever.OPTION_CLOSEST);
                     if (frame == null) continue;
 
-                    // **SYNC** extraction + log
                     JSONObject json = extractor.detectSync(frame);
-                    Log.d(TAG, "t=" + t + "ms → " + json.toString());
+                    Log.d(TAG, "Frame at " + t + "ms:\n" + json.toString(2)); // full pretty print
 
-                    // Update partial text if you like
                     final String previewText = json.optString("hands") + " | "
                             + json.optString("faces");
                     requireActivity().runOnUiThread(() ->
                             b.tvAslToText.setText(previewText));
 
-                    // (Optional) simulate some delay:
                     Thread.sleep(100);
                 }
 
@@ -244,7 +263,6 @@ public class AslToTextFragment extends Fragment {
                 e.printStackTrace();
             }
 
-            // Back to UI: hide spinner, show playback
             requireActivity().runOnUiThread(() -> {
                 root.removeView(spinner);
                 b.fullCameraContainer.setVisibility(View.GONE);
@@ -253,5 +271,13 @@ public class AslToTextFragment extends Fragment {
                 b.videoView.start();
             });
         }).start();
+    }
+
+    private Bitmap imageProxyToBitmap(ImageProxy image) {
+        ImageProxy.PlaneProxy[] planes = image.getPlanes();
+        ByteBuffer buffer = planes[0].getBuffer();
+        byte[] bytes = new byte[buffer.remaining()];
+        buffer.get(bytes);
+        return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
     }
 }
