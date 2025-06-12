@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "238741580543",
+    "project_id": "siloapp25",
+    "storage_bucket": "siloapp25.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:238741580543:android:9dca6e3c4dc6852bf7faca",
+        "android_client_info": {
+          "package_name": "com.silo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2j-OFYpZ2RpbL-FvVBPOaFEzHaUcaLbw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,39 @@
+<resources>
+
+
+    <string name="app_name">SILO</string>
+
+    <!-- onboarding -->
+
+    <string name="onboarding_text_1">Translation from and to ASL</string>
+    <string name="onboarding_text_2">Video calling with real-time translation</string>
+    <string name="onboarding_text_3">Translating audio from any other app while browsing</string>
+    <string name="next">Next</string>
+    <string name="register">Register</string>
+    <string name="onboarding_image_3">onboarding Image 3</string>
+    <string name="onboarding_image_2">onboarding Image 2</string>
+    <string name="onboarding_image_1">onboarding Image 1</string>
+
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="orContinue">or</string>
+    <string name="btn_google">Continue with Google</string>
+    <string name="btn_facebook">Continue with Facebook</string>
+    <string name="on_boarding_1_text">Welcome to SILO \n where hands and voices meet</string>
+    <string name="onboarding">onBoarding</string>
+    <string name="sign_up_underlined"><u>Sign Up</u></string>
+    <string name="sign_up">Sign Up</string>
+    <string name="sign_in_underlined"><u>Sign In</u></string>
+    <string name="sign_in">Sign In</string>
+    <string name="home">Home</string>
+    <string name="contacts">Contacts</string>
+    <string name="profile">Profile</string>
+    <string name="enter_your_text">Enter your text here...</string>
+    <string name="translated_text">Translated text will appear here...</string>
+    <string name="user_photo">user photo</string>
+    <string name="silo_logo">silo logo</string>
+    <string name="notification_icon">Notification Icon</string>
+    <string name="settings_icon">Settings Icon</string>
+    <string name="record">record</string>
+
+</resources>

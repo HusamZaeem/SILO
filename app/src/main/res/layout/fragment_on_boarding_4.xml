@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".OnBoardingFragment_4">
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lottie_onBoarding_1_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="false" />
+
+
+
+    <ImageView
+        android:id="@+id/imageLogo"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_gravity="center_horizontal"
+        android:src="@drawable/silo_dark"
+        android:translationY="50dp"
+        android:visibility="visible" />
+
+
+    <ImageView
+        android:id="@+id/ivOnBoarding"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:translationY="280dp"
+        android:contentDescription="@string/onboarding"
+        android:layout_gravity="center_horizontal"
+        android:src="@drawable/v3"
+        />
+
+
+    <TextView
+        android:id="@+id/tvOnBoarding4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/onboarding_text_3"
+        android:translationY="420dp"
+        android:layout_gravity="center_horizontal"
+        android:textAlignment="center"
+        android:textColor="?android:textColorSecondary"
+        android:textSize="24sp"
+        android:layout_marginStart="40dp"
+        android:layout_marginEnd="40dp"
+        />
+
+
+<!--    <com.airbnb.lottie.LottieAnimationView-->
+<!--        android:id="@+id/lottieTransition"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:scaleType="fitXY"-->
+<!--        android:visibility="gone"-->
+<!--        app:lottie_autoPlay="false"-->
+<!--        app:lottie_loop="false"/>-->
+
+
+
+
+</FrameLayout>

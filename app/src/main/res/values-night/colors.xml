@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="light_gray">#EEEEEE</color>
+
+
+    // Dark Theme Colors
+    <color name="primary_text">#EEEEEE</color>
+    <color name="status_bar">#31353E</color>
+    <color name="secondary_text">#EEEEEE</color>
+    <color name="hint_text">#898B94</color>
+    <color name="surface">#31353E</color>
+    <color name="error_message">#F07178</color>
+    <color name="primary_button">#202731</color>
+    <color name="primary_color">#202731</color>
+    <color name="secondary_button">#EEEEEE</color>
+    <color name="disabled_button">#242836</color>
+    <color name="et_color">#EEEEEE</color>
+    <color name="background_splash">#31353E</color>
+    <color name="background">#31353E</color>
+    <color name="on_surface">#EEEEEE</color>
+    <color name="on_white">#000000</color>
+
+
+
+</resources>

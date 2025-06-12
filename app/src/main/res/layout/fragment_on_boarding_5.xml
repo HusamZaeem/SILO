@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/backgroundColor"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".OnBoardingFragment_5">
+
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lottie_onBoarding_1_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="false" />
+
+    <ImageView
+        android:id="@+id/imageLogo"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_gravity="center_horizontal"
+        android:src="@drawable/silo_dark"
+        android:translationY="50dp"
+        android:visibility="invisible" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="bottom">
+
+
+
+
+            <Button
+                android:id="@+id/btnAslUser"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:text="ASL User"
+                android:textStyle="bold"
+                android:textSize="22sp"
+                android:textColor="?android:textColorSecondary"
+                android:visibility="invisible"
+                android:backgroundTint="?attr/colorSurface"
+                android:layout_marginStart="50dp"
+                android:layout_marginEnd="50dp"
+                android:layout_marginBottom="16dp"/>
+
+
+            <Button
+                android:id="@+id/btnNonAslUser"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:text="Non-ASL User"
+                android:textStyle="bold"
+                android:textSize="22sp"
+                android:visibility="invisible"
+                android:textColor="?android:textColorSecondary"
+                android:backgroundTint="?attr/colorSurface"
+                android:layout_marginStart="50dp"
+                android:layout_marginEnd="50dp"
+                android:layout_marginBottom="16dp"/>
+
+
+
+
+            <Button
+                android:id="@+id/btnNext"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:text="Next"
+                android:textStyle="bold"
+                android:textSize="22sp"
+                android:visibility="invisible"
+                android:textColor="?attr/colorOnPrimaryContainer"
+                android:backgroundTint="?android:textColorSecondary"
+                android:layout_marginStart="50dp"
+                android:layout_marginEnd="50dp"
+                android:layout_marginBottom="16dp"/>
+
+
+
+
+        </LinearLayout>
+
+
+
+
+
+
+
+</FrameLayout>

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="?attr/colorSurface"
+    tools:context=".AslToTextFragment">
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+
+        <FrameLayout
+            android:id="@+id/cameraContainer"
+            android:layout_width="0dp"
+            android:layout_height="300dp"
+            android:layout_margin="16dp"
+            android:background="@drawable/et_home_bg"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <!-- Initial Rectangle with Camera Icon -->
+            <FrameLayout
+                android:id="@+id/recordPreviewContainer"
+                android:layout_width="300dp"
+                android:layout_height="300dp"
+                android:layout_gravity="center"
+                android:background="@drawable/et_home_bg">
+
+                <ImageButton
+                    android:id="@+id/btnLaunchCamera"
+                    android:layout_width="84dp"
+                    android:layout_height="84dp"
+                    android:layout_gravity="center"
+                    android:scaleType="fitCenter"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/outline_videocam_24"
+                    android:contentDescription="Launch Camera" />
+            </FrameLayout>
+
+            <!-- Fullscreen Camera View -->
+            <FrameLayout
+                android:id="@+id/fullCameraContainer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                android:background="@drawable/et_home_bg">
+
+                <androidx.camera.view.PreviewView
+                    android:id="@+id/previewView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+                <LinearLayout
+                    android:id="@+id/recordControls"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:padding="16dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:background="#80000000">
+
+                    <ImageButton
+                        android:id="@+id/btnStart"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:background="@drawable/record_circle"
+                        android:contentDescription="@string/record" />
+
+
+
+                    <ImageButton
+                        android:id="@+id/btnSwitchCamera"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_gravity="top|end"
+                        android:layout_margin="16dp"
+                        android:background="@android:color/transparent"
+                        android:src="@drawable/outline_cameraswitch_24"
+                        android:contentDescription="Switch Camera"/>
+
+
+                </LinearLayout>
+            </FrameLayout>
+
+            <!-- Video Display -->
+            <VideoView
+                android:id="@+id/videoView"
+                android:layout_width="300dp"
+                android:layout_height="300dp"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:background="#000000" />
+
+            <!-- Restart Button -->
+            <Button
+                android:id="@+id/btnRestart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Restart"
+                android:layout_gravity="bottom|center_horizontal"
+                android:layout_margin="32dp"
+                android:visibility="gone" />
+        </FrameLayout>
+
+
+
+
+        <TextView
+            android:id="@+id/tvAslToText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="150dp"
+            android:gravity="center"
+            android:layout_margin="16dp"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black"
+            android:background="@drawable/et_home_bg"
+            android:hint="@string/translated_text"
+            android:textSize="18sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+
+
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>
