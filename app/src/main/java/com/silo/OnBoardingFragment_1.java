@@ -1,14 +1,10 @@
 package com.silo;
-
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,11 +16,8 @@ import com.silo.databinding.FragmentOnBoarding1Binding;
 public class OnBoardingFragment_1 extends Fragment {
 
     private FragmentOnBoarding1Binding binding;
-
     private TypingAnimator typingAnimator = new TypingAnimator();
-
     private final Handler handler = new Handler(Looper.getMainLooper());
-
     private String fullText = "";
 
     private final Runnable showSwipeRunnable = () -> {
@@ -40,13 +33,10 @@ public class OnBoardingFragment_1 extends Fragment {
             binding.imageLogo.setVisibility(View.VISIBLE);
             binding.imageLogo.animate()
                     .alpha(1f)
-                    .setDuration(500)  // fade in
+                    .setDuration(500)
                     .start();
         }
     };
-
-
-
 
     public OnBoardingFragment_1() {}
 
@@ -59,17 +49,14 @@ public class OnBoardingFragment_1 extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-
         binding.lottieSwipe.setVisibility(View.INVISIBLE);
-
-
         binding.imageLogo.setVisibility(View.INVISIBLE);
 
         fullText = getString(R.string.on_boarding_1_text);
 
-        // Set background Lottie depending on night mode
         LottieAnimationView bgLottie = view.findViewById(R.id.lottie_onBoarding_1_bg);
         boolean isNightMode = ThemeManager.isDarkMode(requireContext());
+
         if (isNightMode) {
             bgLottie.setAnimation(R.raw.first_on_boarding_dark);
             binding.imageLogo.setImageResource(R.drawable.silo_dark);
@@ -80,20 +67,18 @@ public class OnBoardingFragment_1 extends Fragment {
             binding.lottieSwipe.setAnimation(R.raw.swipe_up_light);
         }
 
-
-
-
         bgLottie.playAnimation();
-
         typingAnimator.startTyping(binding.textTyping, fullText, 2000, 100);
-
-
     }
-
 
     @Override
     public void onResume() {
         super.onResume();
+
+        // Use UnityUtils to attach Unity view
+        if (binding.unityContainer.getChildCount() == 0) {
+            UnityUtils.attachUnityView(requireActivity(), binding.unityContainer);
+        }
 
         if (binding.lottieSwipe != null) {
             binding.lottieSwipe.setVisibility(View.INVISIBLE);
@@ -105,7 +90,6 @@ public class OnBoardingFragment_1 extends Fragment {
             binding.imageLogo.setAlpha(0f);
             handler.postDelayed(showImageRunnable, 2000);
         }
-
 
         typingAnimator.startTyping(binding.textTyping, fullText, 2000, 100);
     }
@@ -126,7 +110,4 @@ public class OnBoardingFragment_1 extends Fragment {
         typingAnimator.cancel();
         binding = null;
     }
-
-
-
 }

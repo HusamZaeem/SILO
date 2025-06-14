@@ -25,6 +25,18 @@
         android:visibility="invisible" />
 
 
+
+    <FrameLayout
+        android:id="@+id/unityContainer"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="8dp"
+        android:visibility="visible"
+        android:translationY="150dp"
+        android:background="@color/black"/>
+
+
     <!-- Typing TextView -->
     <TextView
         android:id="@+id/textTyping"

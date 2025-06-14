@@ -28,8 +28,12 @@ dependencyResolutionManagement {
             url "https://github.com/homuler/mediapipe-android-binaries/raw/master"
         }
 
+
     }
 }
 
 rootProject.name = "Silo"
 include ':app'
+include ':unityLibrary'
+include ':unityLibrary:mobilenotifications.androidlib'
+project(':unityLibrary').projectDir = file('unityLibrary')
