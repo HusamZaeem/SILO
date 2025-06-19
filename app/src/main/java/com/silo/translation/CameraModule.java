@@ -3,6 +3,7 @@ package com.silo.translation;
 import android.content.Context;
 
 import androidx.annotation.OptIn;
+import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageAnalysis;
@@ -66,10 +67,13 @@ public class CameraModule {
                 ProcessCameraProvider cameraProvider = future.get();
                 cameraProvider.unbindAll();
 
-                Preview preview = new Preview.Builder().build();
+                Preview preview = new Preview.Builder()
+                        .setTargetAspectRatio(AspectRatio.RATIO_4_3)
+                        .build();
                 preview.setSurfaceProvider(previewView.getSurfaceProvider());
 
                 ImageAnalysis analysis = new ImageAnalysis.Builder()
+                        .setTargetAspectRatio(AspectRatio.RATIO_4_3)
                         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                         .build();
 

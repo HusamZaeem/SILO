@@ -9,8 +9,6 @@ import android.graphics.Rect;
 import android.graphics.YuvImage;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.OptIn;
-import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageProxy;
 
 import com.google.mediapipe.framework.image.BitmapImageBuilder;
@@ -22,6 +20,8 @@ import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarker;
 import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarkerResult;
 import com.google.mediapipe.tasks.vision.handlandmarker.HandLandmarker;
 import com.google.mediapipe.tasks.vision.handlandmarker.HandLandmarkerResult;
+import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarker;
+import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,103 +36,80 @@ import java.util.concurrent.Executors;
 public class LandmarkExtractor {
     private static final String HAND_MODEL = "hand_landmarker.task";
     private static final String FACE_MODEL = "face_landmarker.task";
+    private static final String POSE_MODEL = "pose_landmarker_lite.task";
 
     private final HandLandmarker handLandmarker;
     private final FaceLandmarker faceLandmarker;
+    private final PoseLandmarker poseLandmarker;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public LandmarkExtractor(Context context) {
         try {
-            // Hand Landmarker
-            BaseOptions handBase = BaseOptions.builder()
-                    .setModelAssetPath(HAND_MODEL)
-                    .build();
+            // Hand
+            BaseOptions handBase = BaseOptions.builder().setModelAssetPath(HAND_MODEL).build();
             HandLandmarker.HandLandmarkerOptions handOpts = HandLandmarker.HandLandmarkerOptions.builder()
                     .setBaseOptions(handBase)
-                    .setRunningMode(RunningMode.IMAGE)     // IMAGE for sync; switch to VIDEO or LIVE_STREAM as needed
+                    .setRunningMode(RunningMode.IMAGE)
                     .build();
             handLandmarker = HandLandmarker.createFromOptions(context, handOpts);
 
-            // Face Landmarker
-            BaseOptions faceBase = BaseOptions.builder()
-                    .setModelAssetPath(FACE_MODEL)
-                    .build();
+            // Face
+            BaseOptions faceBase = BaseOptions.builder().setModelAssetPath(FACE_MODEL).build();
             FaceLandmarker.FaceLandmarkerOptions faceOpts = FaceLandmarker.FaceLandmarkerOptions.builder()
                     .setBaseOptions(faceBase)
                     .setRunningMode(RunningMode.IMAGE)
                     .build();
             faceLandmarker = FaceLandmarker.createFromOptions(context, faceOpts);
 
+            // Pose
+            BaseOptions poseBase = BaseOptions.builder().setModelAssetPath(POSE_MODEL).build();
+            PoseLandmarker.PoseLandmarkerOptions poseOpts = PoseLandmarker.PoseLandmarkerOptions.builder()
+                    .setBaseOptions(poseBase)
+                    .setRunningMode(RunningMode.IMAGE)
+                    .build();
+            poseLandmarker = PoseLandmarker.createFromOptions(context, poseOpts);
+
         } catch (Exception e) {
             throw new RuntimeException("Landmarker initialization failed", e);
         }
     }
 
-    /**
-     * Asynchronous per-frame extraction from CameraX ImageProxy.
-     * You MUST close the ImageProxy yourself in the callback (we do it here).
-     */
-//    @OptIn(markerClass = ExperimentalGetImage.class)
-//    public void detectAsync(@NonNull ImageProxy image, int rotationDegrees, ResultCallback cb) {
-//        executor.execute(() -> {
-//            JSONObject out = null;
-//            try {
-//                if (image.getImage() == null) {
-//                    cb.onResult(null);
-//                    return;
-//                }
-//                Bitmap bmp = toBitmap(image);
-//                Matrix m = new Matrix();
-//                m.postRotate(rotationDegrees);
-//                Bitmap rotated = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), m, true);
-//
-//                MPImage mpImg = new BitmapImageBuilder(rotated).build();
-//
-//                HandLandmarkerResult hr = handLandmarker.detect(mpImg);
-//                FaceLandmarkerResult fr = faceLandmarker.detect(mpImg);
-//
-//                out = new JSONObject();
-//                out.put("hands",  toJson(hr.landmarks()));
-//                out.put("faces", toJson(fr.faceLandmarks()));
-//
-//            } catch (Exception e) {
-//                cb.onError(e);
-//            } finally {
-//                image.close();
-//                cb.onResult(out);
-//            }
-//        });
-//    }
-
-    /**
-     * Synchronous detection on a standalone Bitmap (e.g. video frames).
-     */
+    /** Synchronous detection on a Bitmap. */
     public JSONObject detectSync(@NonNull Bitmap bitmap) {
         try {
-            MPImage mpImg = new BitmapImageBuilder(bitmap).build();
-            HandLandmarkerResult hr = handLandmarker.detect(mpImg);
-            FaceLandmarkerResult fr = faceLandmarker.detect(mpImg);
 
-            JSONObject out = new JSONObject();
-            JSONArray frames = new JSONArray();
+            // Ensure bitmap is in ARGB_8888 format
+            if (bitmap.getConfig() != Bitmap.Config.ARGB_8888) {
+                bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, false);
+            }
+
+            MPImage mpImg = new BitmapImageBuilder(bitmap).build();
+
+            HandLandmarkerResult handRes = handLandmarker.detect(mpImg);
+            FaceLandmarkerResult faceRes = faceLandmarker.detect(mpImg);
+            PoseLandmarkerResult poseRes = poseLandmarker.detect(mpImg);
+
             JSONObject frame = new JSONObject();
 
-            List<List<NormalizedLandmark>> hands = hr.landmarks();
-            if (hands.size() > 0) {
-                frame.put("right_hand", landmarksToObject(hands.get(0)));
-            }
-            if (hands.size() > 1) {
-                frame.put("left_hand", landmarksToObject(hands.get(1)));
-            }
+            List<List<NormalizedLandmark>> hands = handRes.landmarks();
+            if (hands.size() > 0)
+                frame.put("right_hand", landmarksToArray(hands.get(0)));
+            if (hands.size() > 1)
+                frame.put("left_hand", landmarksToArray(hands.get(1)));
 
-            List<List<NormalizedLandmark>> faces = fr.faceLandmarks();
-            if (!faces.isEmpty()) {
-                frame.put("face", landmarksToObject(faces.get(0)));
-            }
+            List<List<NormalizedLandmark>> faces = faceRes.faceLandmarks();
+            if (!faces.isEmpty())
+                frame.put("face", landmarksToArray(faces.get(0)));
 
-            frames.put(frame);
-            out.put("frames", frames);
-            return out;
+            List<NormalizedLandmark> poses = poseRes.landmarks().isEmpty() ? null : poseRes.landmarks().get(0);
+            if (poses != null)
+                frame.put("pose", landmarksToArray(poses));
+
+//            JSONArray frames = new JSONArray();
+//            frames.put(frame);
+//            JSONObject out = new JSONObject();
+//            out.put("frames", frames);
+            return frame;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -140,22 +117,18 @@ public class LandmarkExtractor {
         }
     }
 
-
-    // ─── UTILITY ─────────────────────────────────────────────────────────────────
-
-    private static JSONObject landmarksToObject(List<NormalizedLandmark> list) throws JSONException {
-        JSONObject obj = new JSONObject();
-        for (int i = 0; i < list.size(); i++) {
-            NormalizedLandmark lm = list.get(i);
-            JSONObject point = new JSONObject();
-            point.put("x", lm.x());
-            point.put("y", lm.y());
-            point.put("z", lm.z());
-            obj.put(String.valueOf(i), point);
+    /** Converts a list of landmarks into a JSON array of [x, y, z] arrays. */
+    private static JSONArray landmarksToArray(List<NormalizedLandmark> list) throws JSONException {
+        JSONArray arr = new JSONArray();
+        for (NormalizedLandmark lm : list) {
+            JSONArray point = new JSONArray();
+            point.put(lm.x());
+            point.put(lm.y());
+            point.put(lm.z());
+            arr.put(point);
         }
-        return obj;
+        return arr;
     }
-
 
     /** Converts ImageProxy to Bitmap (YUV → JPEG → Bitmap). */
     private Bitmap toBitmap(ImageProxy ip) {

@@ -9,9 +9,7 @@ pluginManagement {
         }
         mavenCentral()
 
-        maven {
-            url "https://github.com/homuler/mediapipe-android-binaries/raw/master"
-        }
+
 
         gradlePluginPortal()
 
@@ -24,9 +22,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
 
-        maven {
-            url "https://github.com/homuler/mediapipe-android-binaries/raw/master"
-        }
+
 
 
     }
@@ -34,6 +30,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "Silo"
 include ':app'
-include ':unityLibrary'
-include ':unityLibrary:mobilenotifications.androidlib'
-project(':unityLibrary').projectDir = file('unityLibrary')

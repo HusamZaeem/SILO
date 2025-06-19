@@ -35,5 +35,10 @@
     <string name="notification_icon">Notification Icon</string>
     <string name="settings_icon">Settings Icon</string>
     <string name="record">record</string>
+    <string name="search_for_a_friend">Search for a friend</string>
+    <string name="plus">+</string>
+    <string name="switch_camera">Switch Camera</string>
+    <string name="restart">Restart</string>
+    <string name="launch_camera">Launch Camera</string>
 
 </resources>
